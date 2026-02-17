@@ -30,6 +30,7 @@ const Search = () => {
 
   const debounceQuery = useDebounce(query, 500);
 
+  // ✅ useRef
   const controllerRef = useRef<AbortController | null>(null);
 
   let fetchResults = async () => {
@@ -37,7 +38,7 @@ const Search = () => {
       setResult([]);
       return;
     }
-
+    // ⚠️ abort the previous api call to avoid race condition
     if (controllerRef.current) {
       controllerRef.current.abort();
     }
@@ -64,7 +65,7 @@ const Search = () => {
       setLoading(false);
     }
   };
-  // Memoize the function
+  // ✅ Memoize the function
   fetchResults = useCallback(fetchResults, [debounceQuery]);
 
   useEffect(() => {
@@ -75,6 +76,7 @@ const Search = () => {
     setQuery(e.target.value);
   };
 
+  // ✅ useMemo
   const renderResults = useMemo(() => {
     return result.map((item) => (
       <li key={item.pageid} className="list-group-item">
@@ -85,7 +87,7 @@ const Search = () => {
         ></p>
       </li>
     ));
-  }, [result]);
+  }, [result]); // ⚠️ remember render should happen only when the result changes.
 
   return (
     <div>
