@@ -9,7 +9,7 @@ import { api } from "../api/axios";
 import useDebounce from "../hooks/useDebounce";
 
 interface WikiResult {
-  pageId: number;
+  pageid: number;
   title: string;
   snippet: string;
 }
@@ -75,41 +75,29 @@ const Search = () => {
     setQuery(e.target.value);
   };
 
-  let content: React.ReactNode = "";
-
-  content = useMemo(
-    () => (
-      <ul>
-        {result.map((item) => (
-          <li key={item.pageId}>{item.title}</li>
-        ))}
-      </ul>
-    ),
-    [result],
-  );
-
-  if (loading) {
-    content = <p>Loading...</p>;
-  }
-
-  if (error) {
-    content = <p>{error}</p>;
-  }
-
-  if (
-    !loading &&
-    !error &&
-    debounceQuery.length >= MIN_LENGTH &&
-    result.length === 0
-  ) {
-    content = <p className="text-muted">No Results found.</p>;
-  }
+  const renderResults = useMemo(() => {
+    return result.map((item) => (
+      <li key={item.pageid} className="list-group-item">
+        <h6>{item.title}</h6>
+        <p
+          dangerouslySetInnerHTML={{ __html: item.snippet }}
+          className="mb-0 small"
+        ></p>
+      </li>
+    ));
+  }, [result]);
 
   return (
     <div>
-      <input type="text" value={query} onChange={handleChange} />
-      <br />
-      {content}
+      <input
+        type="text"
+        value={query}
+        placeholder="Search Wikipedia..."
+        onChange={handleChange}
+      />
+      {loading && <p>Loading...</p>}
+      {error && <p>{error}</p>}
+      <ul className="list-group">{renderResults}</ul>
     </div>
   );
 };
